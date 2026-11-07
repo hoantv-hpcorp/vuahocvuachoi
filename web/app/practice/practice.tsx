@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppBar } from "@/components/AppBar";
 import { Device } from "@/components/Device";
-import { saveAnswer, submitAttempt } from "./actions";
+import { submitAttempt } from "./actions";
 import { questionTextWithoutChoices } from "@/lib/question-text";
 
 type Question = { id: string; number: number; topic: string; type: "MCQ" | "FILL"; contentText: string; images: string[]; options: { position: number; text: string | null; image: string | null }[] };
@@ -27,7 +27,10 @@ export function Practice({ attemptId, title, questions, initialAnswers }: { atte
     while (pending.current.size) {
       const [id, value] = pending.current.entries().next().value!;
       pending.current.delete(id);
-      try { await saveAnswer(attemptId, id, value); }
+      try {
+        const response = await fetch("/api/practice/answer", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ attemptId, questionId: id, rawAnswer: value }) });
+        if (!response.ok || response.redirected) throw new Error("Unable to save answer");
+      }
       catch { if (!pending.current.has(id)) pending.current.set(id, value); failed.current = true; break; }
     }
     running.current = false;
