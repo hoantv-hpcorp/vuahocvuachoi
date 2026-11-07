@@ -1,0 +1,9 @@
+.vscode
+.qoder
+web/scripts/last-model-output*.json
+.agents/
+.env.local
+target/
+extractor/output/
+extractor/ConvertTIMO2.md
+extractor/TIMOK2.pdf

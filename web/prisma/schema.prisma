@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum QuestionType {
+  MCQ
+  FILL
+}
+
+enum ImageRole {
+  SNAPSHOT
+  FIGURE
+  OPTION
+  SOLUTION_SNAPSHOT
+  SOLUTION_FIGURE
+}
+
+enum AttemptStatus {
+  IN_PROGRESS
+  SUBMITTED
+  REVIEWED
+}
+
+enum ExplanationKind {
+  EXPLAIN
+  SOLVE
+}
+
+model User {
+  id        String    @id @default(cuid())
+  auth0Id   String    @unique @map("auth0_id")
+  email     String?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  profiles  Profile[]
+
+  @@map("users")
+}
+
+model Profile {
+  id        String    @id @default(cuid())
+  userId    String    @map("user_id")
+  nickname  String
+  grade     Int
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attempts  Attempt[]
+
+  @@index([userId])
+  @@map("profiles")
+}
+
+model Exam {
+  id         String     @id @default(cuid())
+  code       String     @unique
+  source     String
+  grade      Int
+  year       Int?
+  round      String
+  examNo     Int        @map("exam_no")
+  title      String
+  sourceFile String?    @map("source_file")
+  published  Boolean    @default(false)
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @map("updated_at")
+  questions  Question[]
+  attempts   Attempt[]
+
+  @@unique([source, grade, round, examNo])
+  @@index([grade, published])
+  @@map("exams")
+}
+
+model Question {
+  id            String           @id @default(cuid())
+  examId        String           @map("exam_id")
+  number        Int
+  topic         String
+  type          QuestionType
+  contentText   String           @map("content_text")
+  correctAnswer String           @map("correct_answer")
+  solutionText  String?          @map("solution_text")
+  points        Int
+  needsReview   Boolean          @default(false) @map("needs_review")
+  exam          Exam             @relation(fields: [examId], references: [id], onDelete: Cascade)
+  options       QuestionOption[]
+  images        QuestionImage[]
+  answers       AttemptAnswer[]
+  explanations  AiExplanation[]
+
+  @@unique([examId, number])
+  @@index([examId, topic, number])
+  @@map("questions")
+}
+
+model QuestionImage {
+  id         String           @id @default(cuid())
+  questionId String           @map("question_id")
+  role       ImageRole
+  seq        Int
+  storageKey String           @unique @map("storage_key")
+  width      Int?
+  height     Int?
+  sha256     String?
+  question   Question         @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  optionUses QuestionOption[]
+
+  @@unique([questionId, role, seq])
+  @@index([questionId, role])
+  @@map("question_images")
+}
+
+model QuestionOption {
+  id         String         @id @default(cuid())
+  questionId String         @map("question_id")
+  position   Int
+  text       String?
+  imageId    String?        @map("image_id")
+  question   Question       @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  image      QuestionImage? @relation(fields: [imageId], references: [id], onDelete: SetNull)
+
+  @@unique([questionId, position])
+  @@index([imageId])
+  @@map("question_options")
+}
+
+model Attempt {
+  id          String          @id @default(cuid())
+  profileId   String          @map("profile_id")
+  examId      String          @map("exam_id")
+  status      AttemptStatus   @default(IN_PROGRESS)
+  startedAt   DateTime        @default(now()) @map("started_at")
+  submittedAt DateTime?       @map("submitted_at")
+  reviewedAt  DateTime?       @map("reviewed_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+  profile     Profile         @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  exam        Exam            @relation(fields: [examId], references: [id], onDelete: Restrict)
+  answers     AttemptAnswer[]
+
+  @@index([profileId, updatedAt])
+  @@index([examId])
+  @@map("attempts")
+}
+
+model AttemptAnswer {
+  id              String    @id @default(cuid())
+  attemptId       String    @map("attempt_id")
+  questionId      String    @map("question_id")
+  rawAnswer       String?   @map("raw_answer")
+  systemCorrect   Boolean?  @map("system_correct")
+  overrideCorrect Boolean?  @map("override_correct")
+  pointsPossible  Int?      @map("points_possible")
+  answeredAt      DateTime? @map("answered_at")
+  gradedAt        DateTime? @map("graded_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  attempt         Attempt   @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question        Question  @relation(fields: [questionId], references: [id], onDelete: Restrict)
+
+  @@unique([attemptId, questionId])
+  @@index([questionId])
+  @@map("attempt_answers")
+}
+
+model AiExplanation {
+  id         String          @id @default(cuid())
+  questionId String          @map("question_id")
+  kind       ExplanationKind
+  language   String          @default("vi")
+  content    String
+  model      String
+  createdAt  DateTime        @default(now()) @map("created_at")
+  updatedAt  DateTime        @updatedAt @map("updated_at")
+  question   Question        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, kind, language])
+  @@map("ai_explanations")
+}

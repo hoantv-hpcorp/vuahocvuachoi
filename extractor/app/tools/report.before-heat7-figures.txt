@@ -1,0 +1,20 @@
+TIMO grade-2 ingest report
+
+PRELIMINARY #1: 25 questions,  0 needs_review, 73 images
+PRELIMINARY #2: 25 questions,  0 needs_review, 74 images
+PRELIMINARY #3: 25 questions,  0 needs_review, 71 images
+PRELIMINARY #4: 25 questions,  0 needs_review, 78 images
+PRELIMINARY #5: 25 questions,  0 needs_review, 66 images
+PRELIMINARY #6: 25 questions,  0 needs_review, 59 images
+PRELIMINARY #7: 25 questions,  0 needs_review, 64 images
+HEAT        #1: 25 questions,  0 needs_review, 64 images
+HEAT        #2: 25 questions,  0 needs_review, 62 images
+HEAT        #3: 25 questions,  0 needs_review, 62 images
+HEAT        #4: 25 questions,  0 needs_review, 63 images
+HEAT        #5: 25 questions,  0 needs_review, 64 images
+HEAT        #6: 25 questions,  0 needs_review, 65 images
+HEAT        #7: 25 questions,  0 needs_review, 58 images
+
+Structural issues: 0
+
+Needs review: 0

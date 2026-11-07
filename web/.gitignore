@@ -1,0 +1,7 @@
+.next/
+.next-before-m0/
+node_modules/
+.env
+.env.local
+.env.*.local
+generated/prisma/
