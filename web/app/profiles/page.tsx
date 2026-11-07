@@ -9,9 +9,9 @@ export default function ProfilesPage() {
       <AppBar>
         <div className="title">Xin chào, gia đình!</div>
         <span className="spacer" />
-        <Link href="/auth/logout" className="btn btn-ghost appbar-btn" prefetch={false}>
+        <a href="/auth/logout" className="btn btn-ghost appbar-btn">
           Đăng xuất
-        </Link>
+        </a>
       </AppBar>
 
       <div className="body">
