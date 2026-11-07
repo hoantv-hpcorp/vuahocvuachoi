@@ -1,6 +1,6 @@
 # Exam Practice Website: MVP Implementation Roadmap
 
-Status: M3 complete (user confirmed 2026-11-08) | Owner: Nathan | Stack: Next.js, Auth0, Supabase (Postgres + Storage), Prisma, Vercel, OpenAI
+Status: M0–M3 and M5 complete; M4 pending (M5 user confirmed 2026-11-08) | Owner: Nathan | Stack: Next.js, Auth0, Supabase (Postgres + Storage), Prisma, Vercel, OpenAI
 
 ## 1. MVP goal
 
@@ -114,13 +114,13 @@ Done when: a second tap on the same question returns instantly, and the output r
 
 ### M5: History and release (3 to 4 days)
 
-- [ ] Attempt history per profile
-- [ ] Profile and history deletion
-- [ ] Short privacy page
-- [ ] Loading and error states
-- [ ] Tablet pass: touch targets and readable fonts
+- [x] Attempt history per profile
+- [x] Profile and history deletion
+- [x] Short privacy page
+- [x] Loading and error states
+- [x] Tablet pass: touch targets and readable fonts
 
-Done when: your children use it for a real week without help navigating.
+Done when: your children use it for a real week without help navigating. **Complete — confirmed by user on 2026-11-08.**
 
 ## 5. Timeline summary
 

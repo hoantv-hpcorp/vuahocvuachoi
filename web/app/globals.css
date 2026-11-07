@@ -91,6 +91,55 @@ a {
   flex: none;
 }
 
+/* ---------- page loading ---------- */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(61, 44, 41, 0.18);
+}
+
+.loading-card {
+  width: min(100%, 300px);
+  padding: 32px 24px 26px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: 0 18px 48px rgba(90, 50, 20, 0.16);
+  text-align: center;
+}
+
+.loading-orbit {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 18px;
+  border: 4px solid var(--primary-tint);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  animation: loading-spin 1s linear infinite;
+}
+
+.loading-orbit span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.loading-title { font-size: 20px; font-weight: 800; }
+.loading-description { margin-top: 6px; color: var(--ink-soft); font-size: 15px; line-height: 1.5; }
+.loading-dots { display: flex; justify-content: center; gap: 6px; margin-top: 18px; }
+.loading-dots span { width: 7px; height: 7px; border-radius: 50%; background: var(--primary); animation: loading-bounce 1.2s ease-in-out infinite; }
+.loading-dots span:nth-child(2) { animation-delay: 0.15s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes loading-spin { to { transform: rotate(360deg); } }
+@keyframes loading-bounce { 0%, 60%, 100% { opacity: 0.35; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-4px); } }
+
 /* ---------- shared app chrome ---------- */
 .appbar {
   flex: none;
@@ -1552,3 +1601,8 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .practice-section { display: flex; flex-direction: column; gap: 14px; }
 .practice-section-title { font-size: 20px; padding: 0 4px; }
 .grade-filters .chip { min-height: 44px; }
+.hist-main h2 { font-size: 1.1rem; font-weight: 800; }
+.history-clear { margin-top: 16px; }
+.privacy-copy { line-height: 1.6; }
+.privacy-copy p { margin-top: 16px; }
+.profile-actions a, .seg button, .tool-btn { min-height: 44px; }
