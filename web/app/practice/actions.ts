@@ -42,10 +42,21 @@ export async function submitAttempt(attemptId: string) {
     if (attempt.status !== "IN_PROGRESS") return;
     const questions = await tx.question.findMany({ where: { examId: attempt.examId }, select: { id: true, correctAnswer: true, points: true } });
     const now = new Date();
+    const answers = new Map(attempt.answers.map(answer => [answer.questionId, answer.rawAnswer]));
+    const missing = questions.filter(q => !answers.has(q.id));
+    if (missing.length) {
+      await tx.attemptAnswer.createMany({ data: missing.map(q => ({ attemptId, questionId: q.id })) });
+    }
+    const groups = new Map<string, { points: number; correct: boolean; ids: string[] }>();
     for (const q of questions) {
-      const rawAnswer = attempt.answers.find(a => a.questionId === q.id)?.rawAnswer ?? null;
-      const result = { systemCorrect: gradeAnswer(rawAnswer, q.correctAnswer), pointsPossible: q.points, gradedAt: now };
-      await tx.attemptAnswer.upsert({ where: { attemptId_questionId: { attemptId, questionId: q.id } }, create: { attemptId, questionId: q.id, rawAnswer, ...result }, update: result });
+      const correct = gradeAnswer(answers.get(q.id) ?? null, q.correctAnswer);
+      const key = `${q.points}:${correct}`;
+      const group = groups.get(key) ?? { points: q.points, correct, ids: [] };
+      group.ids.push(q.id);
+      groups.set(key, group);
+    }
+    for (const group of groups.values()) {
+      await tx.attemptAnswer.updateMany({ where: { attemptId, questionId: { in: group.ids } }, data: { systemCorrect: group.correct, pointsPossible: group.points, gradedAt: now } });
     }
     await tx.attempt.update({ where: { id: attemptId }, data: { status: "SUBMITTED", submittedAt: now } });
   });
