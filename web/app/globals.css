@@ -1536,3 +1536,12 @@ svg.ic.sm {
     animation-duration: 0.01ms !important;
   }
 }
+.profile-form { display: flex; flex-direction: column; gap: 16px; padding: 24px; }
+.profile-form .btn { min-height: 52px; }
+.field select { height: 56px; border-radius: 14px; border: 2px solid var(--line); padding: 0 16px; font: inherit; background: #fffdfa; color: var(--ink); }
+.profile-select { border: 0; background: transparent; font: inherit; color: inherit; display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; width: 100%; }
+.profile-card form { width: 100%; }
+.profile-actions { display: flex; gap: 24px; }
+.profile-actions a { padding: 10px; color: var(--primary-deep); font-weight: 800; }
+.empty-catalog { padding: 22px; }
+:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }

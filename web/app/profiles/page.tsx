@@ -1,52 +1,14 @@
 import Link from "next/link";
 import { AppBar } from "@/components/AppBar";
 import { Device } from "@/components/Device";
-import { Icon } from "@/components/Icon";
-
-export default function ProfilesPage() {
-  return (
-    <Device>
-      <AppBar>
-        <div className="title">Xin chào, gia đình!</div>
-        <span className="spacer" />
-        <a href="/auth/logout" className="btn btn-ghost appbar-btn">
-          Đăng xuất
-        </a>
-      </AppBar>
-
-      <div className="body">
-        <p className="lead">Hôm nay con nào luyện đề?</p>
-
-        <div className="profile-grid">
-          <Link href="/exams" className="profile-card">
-            <span className="edit" aria-hidden="true">
-              <Icon name="edit" small />
-            </span>
-            <div className="avatar av-1">N</div>
-            <div className="name">Bé Na</div>
-            <div className="meta">Lớp 2 · 4 bài đã làm</div>
-            <span className="pill pill-ok">Tiếp tục nhé</span>
-          </Link>
-
-          <Link href="/exams" className="profile-card">
-            <span className="edit" aria-hidden="true">
-              <Icon name="edit" small />
-            </span>
-            <div className="avatar av-2">B</div>
-            <div className="name">Bé Bi</div>
-            <div className="meta">Lớp 1 · chưa làm bài nào</div>
-          </Link>
-
-          <div className="card add-card">
-            <Icon name="plus" />
-            Thêm hồ sơ con mới
-          </div>
-        </div>
-
-        <p className="fineprint">
-          Bố mẹ có thể sửa tên và lớp, hoặc xóa hồ sơ cùng toàn bộ lịch sử bất cứ lúc nào.
-        </p>
-      </div>
-    </Device>
-  );
+import { currentUser } from "@/lib/current-user";
+import { prisma } from "@/lib/prisma";
+import { deleteProfile, saveProfile, selectProfile } from "./actions";
+export default async function ProfilesPage({ searchParams }: { searchParams: Promise<{ new?: string; edit?: string; delete?: string; error?: string }> }) {
+ const [user, params] = await Promise.all([currentUser(), searchParams]);
+ const profiles = await prisma.profile.findMany({ where: { userId: user.id }, orderBy: { createdAt: "asc" }, select: { id: true, nickname: true, grade: true } });
+ const editing = profiles.find(p => p.id === params.edit); const deleting = profiles.find(p => p.id === params.delete);
+ return <Device><AppBar><div className="title">Xin chào, gia đình!</div><span className="spacer" /><a href="/auth/logout" className="btn btn-ghost appbar-btn">Đăng xuất</a></AppBar><div className="body">
+ {params.new === "1" || editing ? <><h1>{editing ? "Sửa hồ sơ" : "Thêm hồ sơ con"}</h1><form action={saveProfile} className="card profile-form">{editing && <input type="hidden" name="id" value={editing.id} />}{params.error && <p role="alert">Vui lòng nhập tên (tối đa 50 ký tự) và chọn lớp.</p>}<div className="field"><label htmlFor="nickname">Tên gọi của con</label><input id="nickname" name="nickname" defaultValue={editing?.nickname} maxLength={50} required /></div><div className="field"><label htmlFor="grade">Lớp</label><select id="grade" name="grade" defaultValue={editing?.grade ?? 2}>{[1,2,3,4,5].map(g => <option key={g} value={g}>Lớp {g}</option>)}</select></div><button className="btn btn-primary" type="submit">Lưu hồ sơ</button><Link href="/profiles" className="btn btn-soft">Hủy</Link></form></> : deleting ? <><h1>Xóa hồ sơ {deleting.nickname}?</h1><p>Toàn bộ lịch sử làm bài của con cũng sẽ bị xóa và không thể khôi phục.</p><form action={deleteProfile} className="profile-form"><input type="hidden" name="id" value={deleting.id} /><button className="btn btn-primary" type="submit">Xóa hồ sơ và lịch sử</button><Link href="/profiles" className="btn btn-soft">Hủy</Link></form></> : <><h1 className="lead">Hôm nay con nào luyện đề?</h1><div className="profile-grid">{profiles.map((p, i) => <div className="profile-card" key={p.id}><form action={selectProfile}><input type="hidden" name="id" value={p.id} /><button className="profile-select" type="submit"><span className={`avatar ${i % 2 ? "av-2" : "av-1"}`}>{Array.from(p.nickname)[0]?.toLocaleUpperCase("vi")}</span><span className="name">{p.nickname}</span><span className="meta">Lớp {p.grade}</span><span className="pill pill-ok">Chọn hồ sơ</span></button></form><div className="profile-actions"><Link href={`/profiles?edit=${encodeURIComponent(p.id)}`}>Sửa</Link><Link href={`/profiles?delete=${encodeURIComponent(p.id)}`}>Xóa</Link></div></div>)}<Link href="/profiles?new=1" className="card add-card">+ Thêm hồ sơ con mới</Link></div><p className="fineprint">Bố mẹ có thể sửa tên và lớp, hoặc xóa hồ sơ cùng toàn bộ lịch sử bất cứ lúc nào.</p></>}
+ </div></Device>;
 }

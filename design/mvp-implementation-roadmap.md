@@ -1,6 +1,6 @@
 # Exam Practice Website: MVP Implementation Roadmap
 
-Status: Draft v1 | Owner: Nathan | Stack: Next.js, Auth0, Supabase (Postgres + Storage), Prisma, Vercel, OpenAI
+Status: M1 complete (user confirmed 2026-11-08) | Owner: Nathan | Stack: Next.js, Auth0, Supabase (Postgres + Storage), Prisma, Vercel, OpenAI
 
 ## 1. MVP goal
 
@@ -59,23 +59,23 @@ Estimates are focused working days. Scale them to your real weekly hours.
 
 ### M0: Walking skeleton (3 to 5 days)
 
-- [ ] Next.js project deployed on Vercel
-- [ ] Supabase project (Postgres and Storage), Prisma connected
-- [ ] Auth0 login working end to end
-- [ ] Prisma schema: User, Profile, Exam, Section, Question, Attempt, AttemptAnswer, AiExplanation
-- [ ] Import script for grade 2 JSON and figures, with validation (missing images, questions without answers, invalid types)
-- [ ] Figures uploaded to Supabase Storage
+- [x] Next.js project deployed on Vercel
+- [x] Supabase project (Postgres and Storage), Prisma connected
+- [x] Auth0 login working end to end
+- [x] Prisma schema: User, Profile, Exam, Section, Question, Attempt, AttemptAnswer, AiExplanation
+- [x] Import script for grade 2 JSON and figures, with validation (missing images, questions without answers, invalid types)
+- [x] Figures uploaded to Supabase Storage
 
-Done when: you log in and see the grade 2 exam list loaded from the real database.
+Done when: you log in and see the grade 2 exam list loaded from the real database. **Complete — confirmed by user on 2026-11-08.**
 
 ### M1: Profiles and catalog (2 to 3 days)
 
-- [ ] Create, edit, delete child profiles (nickname and grade)
-- [ ] Profile selection
-- [ ] Exam catalog filtered by grade, with a Start button
-- [ ] Ownership check on every route (parent owns the profile or attempt); all data access goes through the Next.js server, so this is the security boundary
+- [x] Create, edit, delete child profiles (nickname and grade)
+- [x] Profile selection
+- [x] Exam catalog filtered by grade, with a Start button
+- [x] Ownership check on every route (parent owns the profile or attempt); all data access goes through the Next.js server, so this is the security boundary
 
-Done when: a parent can add a child and pick an exam for them.
+Done when: a parent can add a child and pick an exam for them. **Complete — confirmed by user on 2026-11-08.**
 
 ### M2: Attempt core (5 to 7 days)
 
