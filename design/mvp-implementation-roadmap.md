@@ -1,6 +1,6 @@
 # Exam Practice Website: MVP Implementation Roadmap
 
-Status: M2 complete (user confirmed 2026-11-08) | Owner: Nathan | Stack: Next.js, Auth0, Supabase (Postgres + Storage), Prisma, Vercel, OpenAI
+Status: M3 complete (user confirmed 2026-11-08) | Owner: Nathan | Stack: Next.js, Auth0, Supabase (Postgres + Storage), Prisma, Vercel, OpenAI
 
 ## 1. MVP goal
 
@@ -92,15 +92,15 @@ Done when: a child completes a full paper on a tablet, closes the tab midway, an
 
 ### M3: Grading and shared review (4 to 5 days)
 
-- [ ] Server-side grading on submit (trim, case-insensitive); store system result and points per answer; move to `SUBMITTED`
-- [ ] Review screen in original exam order: child's answer beside the correct answer
-- [ ] Gentle marker on rows that need another look (not a red failure list)
-- [ ] Score shown small and lower on the screen
-- [ ] Mark as Correct or Wrong on any row, total recalculated live, autosaved
-- [ ] Save review or leaving the screen moves the attempt to `REVIEWED`
-- [ ] Review endpoint returns correct answers only when the attempt is `SUBMITTED` or later
+- [x] Server-side grading on submit (trim, case-insensitive); store system result and points per answer; move to `SUBMITTED`
+- [x] Review screen in original exam order: child's answer beside the correct answer
+- [x] Gentle marker on rows that need another look (not a red failure list)
+- [x] Score shown small and lower on the screen
+- [x] Mark as Correct or Wrong on any row, total recalculated live, autosaved
+- [x] Save review or leaving the screen moves the attempt to `REVIEWED`
+- [x] Review endpoint returns correct answers only when the attempt is `SUBMITTED` or later
 
-Done when: you finish a paper, see the results, override one answer, and the final total updates correctly.
+Done when: you finish a paper, see the results, override one answer, and the final total updates correctly. **Complete — confirmed by user on 2026-11-08.**
 
 ### M4: AI explanations (3 to 4 days)
 

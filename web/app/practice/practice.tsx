@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AppBar } from "@/components/AppBar";
 import { Device } from "@/components/Device";
 import { saveAnswer, submitAttempt } from "./actions";
@@ -12,7 +13,7 @@ export function Practice({ attemptId, title, questions, initialAnswers }: { atte
   const [index, setIndex] = useState(0);
   const [status, setStatus] = useState<"saved" | "saving" | "error">("saved");
   const [confirm, setConfirm] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const router = useRouter();
   const [busy, setBusy] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const pending = useRef(new Map<string, string>());
@@ -41,9 +42,8 @@ export function Practice({ attemptId, title, questions, initialAnswers }: { atte
   const submit = async () => {
     if (running.current || pending.current.size) return;
     setBusy(true);
-    try { await submitAttempt(attemptId); setSubmitted(true); } catch { setStatus("error"); } finally { setBusy(false); }
+    try { await submitAttempt(attemptId); router.push(`/review?attempt=${encodeURIComponent(attemptId)}`); } catch { setStatus("error"); } finally { setBusy(false); }
   };
-  if (submitted) return <Device><AppBar><Link href="/exams" className="btn btn-ghost">Về danh sách đề</Link></AppBar><div className="body"><h1>Bài đã được nộp</h1><p>Con đã hoàn thành bài làm. Phần xem lại bài đang được chuẩn bị.</p></div></Device>;
   const sections = questions.reduce<{ topic: string; questions: Question[] }[]>((groups, question) => {
     const last = groups[groups.length - 1];
     if (last?.topic === question.topic) last.questions.push(question);
@@ -68,3 +68,4 @@ export function Practice({ attemptId, title, questions, initialAnswers }: { atte
     {confirm && <div className="scrim" role="dialog" aria-modal="true" aria-labelledby="submit-title"><div className="modal"><h2 id="submit-title">Con đã sẵn sàng nộp bài chưa?</h2><div className="stats"><div className="stat done"><b>{questions.length - unanswered}</b><span>câu đã trả lời</span></div><div className="stat open"><b>{unanswered}</b><span>câu còn trống</span></div></div><p>Sau khi nộp, con sẽ không thể sửa câu trả lời.</p><button className="btn btn-soft" onClick={() => setConfirm(false)}>Xem lại bài làm</button><button className="btn btn-primary" disabled={status !== "saved" || busy} onClick={() => void submit()}>{busy ? "Đang nộp…" : "Nộp bài"}</button>{status === "error" && <button className="link-like" onClick={() => void flush()}>Thử lưu lại</button>}</div></div>}
   </Device>;
 }
+
