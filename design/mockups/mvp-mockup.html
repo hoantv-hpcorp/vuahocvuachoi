@@ -148,6 +148,13 @@
   .q-nav{flex:none;display:flex;gap:14px;padding:14px 26px 24px;}
   .q-nav .btn{height:64px;font-size:18px;}
 
+  .practice-section{display:flex;flex-direction:column;gap:12px;}
+  .section-heading{font-size:20px;color:var(--ink);padding:4px;}
+  .section-heading span{font-size:14px;color:var(--ink-soft);margin-left:8px;}
+  .section-intro{font-size:14px;color:var(--ink-soft);padding:0 4px;}
+  .section-questions{display:flex;flex-direction:column;gap:14px;}
+  .grade-filters{flex-wrap:wrap;}
+
   /* ---------- S5 submit confirm ---------- */
   .scrim{position:absolute;inset:0;background:rgba(61,44,41,.45);display:flex;align-items:center;justify-content:center;z-index:20;padding:0 70px;}
   .modal{background:var(--surface);border-radius:28px;padding:36px 34px;width:100%;display:flex;flex-direction:column;gap:16px;text-align:center;}
@@ -345,7 +352,7 @@
 
   <!-- ============ S4 QUESTION ============ -->
   <div class="cell">
-    <div class="cell-label"><span class="num">4</span><span class="t">Làm bài — câu hỏi</span><span class="note">Đầy đủ từng câu hỏi trong phần: đề bài + hình ảnh + lựa chọn hoặc ô nhập · Nút: phần đầu chỉ có Tiếp theo, phần cuối là Nộp bài</span></div>
+    <div class="cell-label"><span class="num">4</span><span class="t">Làm bài — theo phần</span><span class="note">Các câu trong cùng một phần hiển thị liên tiếp · chuyển giữa các phần</span></div>
     <div class="frame-wrap"><div class="tablet">
       <div class="statusbar"><span>9:58</span><span>100%</span></div>
       <div class="appbar">
@@ -354,19 +361,21 @@
         <div class="spacer"></div>
         <span class="savedot">Đã lưu tự động</span>
       </div>
-      <div class="body scroll">
+      <div class="body scroll" id="practice-body">
         <div class="q-progress">
           <div class="track"><i style="width:50%"></i></div>
           <span class="count">Phần 2 / 4</span>
         </div>
-        <div class="grade-filters">
+        <div class="grade-filters" aria-label="Các phần của đề thi">
           <span class="chip">LOGIC</span>
           <span class="chip on">ARITHMETIC</span>
           <span class="chip">NUMBER THEORY</span>
           <span class="chip">GEOMETRY</span>
         </div>
-        <div class="section-cap">Các câu hỏi của phần ARITHMETIC — con làm trực tiếp trên màn hình này</div>
-        <div class="rev-list">
+        <section class="practice-section" aria-labelledby="section-title">
+        <h2 class="section-heading" id="section-title">Phần 2 · ARITHMETIC <span>Câu 4–6</span></h2>
+        <p class="section-intro">Làm lần lượt các câu trong phần này. Cuộn xuống để xem thêm nhé.</p>
+        <div class="section-questions">
           <div class="card q-card">
             <div class="q-num">CÂU 4 · TRẮC NGHIỆM</div>
             <div class="q-text">Tính: 8 + 7 = ?</div>
@@ -381,21 +390,21 @@
             <div class="q-num">CÂU 5 · TỰ LUẬN</div>
             <div class="q-text">Hãy đếm xem có tất cả bao nhiêu hình tròn.</div>
             <div class="figure"><svg width="360" height="90" viewBox="0 0 360 90"><g fill="none" stroke="#3D2C29" stroke-width="2.5"><circle cx="60" cy="45" r="26"/><circle cx="150" cy="30" r="20"/><circle cx="230" cy="60" r="16"/><circle cx="300" cy="40" r="24"/><circle cx="330" cy="68" r="12"/></g></svg></div>
-            <input class="free-input" placeholder="Con gõ đáp số vào đây">
-            </div>
+            <input class="free-input" aria-label="Đáp án câu 5" placeholder="Con gõ đáp số vào đây">
           </div>
           <div class="card q-card">
             <div class="q-num">CÂU 6 · TỰ LUẬN</div>
             <div class="q-text">Tính: 13 - 6 = ?</div>
-            <input class="free-input" placeholder="Con gõ đáp số vào đây">
+            <input class="free-input" aria-label="Đáp án câu 6" placeholder="Con gõ đáp số vào đây">
           </div>
         </div>
+        </section>
         <p style="font-size:14px;font-weight:600;color:var(--ink-faint);padding:0 4px;">Con cứ thoải mái suy nghĩ — mỗi câu trả lờ̀i đều được lưu ngay, con có thể dừng lại và quay lại bất cứ lúc nào.</p>
       </div>
       <div class="q-nav">
         <button class="btn btn-soft" style="flex:1;">
-          <svg class="ic sm" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Quay lại</button>
-        <button class="btn btn-primary" style="flex:2;">Tiếp theo
+          <svg class="ic sm" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Phần trước</button>
+        <button class="btn btn-primary" style="flex:2;">Phần tiếp theo
           <svg class="ic sm" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
       </div>
     </div></div>

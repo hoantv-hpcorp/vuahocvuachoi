@@ -1,6 +1,6 @@
 # Exam Practice Website: MVP Implementation Roadmap
 
-Status: M1 complete (user confirmed 2026-11-08) | Owner: Nathan | Stack: Next.js, Auth0, Supabase (Postgres + Storage), Prisma, Vercel, OpenAI
+Status: M2 complete (user confirmed 2026-11-08) | Owner: Nathan | Stack: Next.js, Auth0, Supabase (Postgres + Storage), Prisma, Vercel, OpenAI
 
 ## 1. MVP goal
 
@@ -81,14 +81,14 @@ Done when: a parent can add a child and pick an exam for them. **Complete — co
 
 The biggest and riskiest milestone.
 
-- [ ] Start or resume an attempt (one open attempt per child per exam)
-- [ ] Question screens: sections, text, figures at a readable fixed size
-- [ ] Multiple choice and free-text answers
-- [ ] Autosave on each answer
-- [ ] Simple submit confirmation, showing how many questions are unanswered
-- [ ] Verify no correct answers reach the browser before submit
+- [x] Start or resume an attempt (one open attempt per child per exam)
+- [x] Question screens: sections, text, figures at a readable fixed size
+- [x] Multiple choice and free-text answers
+- [x] Autosave on each answer
+- [x] Simple submit confirmation, showing how many questions are unanswered
+- [x] Verify no correct answers reach the browser before submit
 
-Done when: a child completes a full paper on a tablet, closes the tab midway, and resumes without losing answers.
+Done when: a child completes a full paper on a tablet, closes the tab midway, and resumes without losing answers. **Complete — confirmed by user on 2026-11-08.**
 
 ### M3: Grading and shared review (4 to 5 days)
 

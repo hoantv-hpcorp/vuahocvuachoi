@@ -1545,3 +1545,10 @@ svg.ic.sm {
 .profile-actions a { padding: 10px; color: var(--primary-deep); font-weight: 800; }
 .empty-catalog { padding: 22px; }
 :focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+.question-text { white-space: pre-wrap; }
+.figure img { display: block; max-width: 100%; width: auto; height: auto; max-height: 400px; object-fit: contain; }
+.option-image { max-width: 100%; max-height: 160px; object-fit: contain; }
+button:disabled { opacity: .55; cursor: not-allowed; }
+.practice-section { display: flex; flex-direction: column; gap: 14px; }
+.practice-section-title { font-size: 20px; padding: 0 4px; }
+.grade-filters .chip { min-height: 44px; }
