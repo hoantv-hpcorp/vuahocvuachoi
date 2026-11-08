@@ -40,8 +40,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     }
     const user = await currentUser();
-    const answer = await prisma.attemptAnswer.findFirst({
-      where: { attemptId, questionId, attempt: { profile: { userId: user.id }, status: { in: ["SUBMITTED", "REVIEWED"] } } },
+    const answer = await prisma.question.findFirst({
+      where: { id: questionId, exam: { attempts: { some: { id: attemptId, profile: { userId: user.id }, status: { in: kind === "EXPLAIN" ? ["IN_PROGRESS", "SUBMITTED", "REVIEWED"] : ["SUBMITTED", "REVIEWED"] } } } } },
       select: { id: true },
     });
     if (!answer) return NextResponse.json({ error: "Unavailable" }, { status: 404 });

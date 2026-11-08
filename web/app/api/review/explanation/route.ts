@@ -29,16 +29,16 @@ export async function POST(request: Request) {
 async function getExplanation(attemptId: string, questionId: string, kind: "EXPLAIN" | "SOLVE", signal: AbortSignal, send: (event: object) => void) {
   if (kind !== "EXPLAIN" && kind !== "SOLVE") throw new Error("Invalid explanation type");
   const user = await currentUser();
-  const answer = await prisma.attemptAnswer.findFirst({
-    where: { attemptId, questionId, attempt: { profile: { userId: user.id }, status: { in: ["SUBMITTED", "REVIEWED"] } } },
-    select: { question: { select: { id: true, contentText: true, correctAnswer: true, exam: { select: { grade: true } }, images: { where: { role: "FIGURE" }, orderBy: { seq: "asc" }, select: { storageKey: true } }, options: { orderBy: { position: "asc" }, select: { position: true, text: true, image: { select: { storageKey: true } } } } } } },
+  const question = await prisma.question.findFirst({
+    where: { id: questionId, exam: { attempts: { some: { id: attemptId, profile: { userId: user.id }, status: { in: kind === "EXPLAIN" ? ["IN_PROGRESS", "SUBMITTED", "REVIEWED"] : ["SUBMITTED", "REVIEWED"] } } } } },
+    select: { id: true, contentText: true, correctAnswer: true, exam: { select: { grade: true } }, images: { where: { role: "FIGURE" }, orderBy: { seq: "asc" }, select: { storageKey: true } }, options: { orderBy: { position: "asc" }, select: { position: true, text: true, image: { select: { storageKey: true } } } } },
   });
-  if (!answer) throw new Error("Question unavailable");
+  if (!question) throw new Error("Question unavailable");
   const cached = await prisma.aiExplanation.findUnique({ where: { questionId_kind_language: { questionId, kind, language: "vi" } } });
   if (cached) { send({ type: "done", content: cached.content }); return; }
   if (!process.env.OPENAI_API_KEY) throw new Error("AI configuration missing");
 
-  const q = answer.question;
+  const q = question;
   const keys = [...new Set([...q.images.map(i => i.storageKey), ...q.options.flatMap(o => o.image ? [o.image.storageKey] : [])])];
   const urls = new Map<string, string>();
   if (keys.length) {

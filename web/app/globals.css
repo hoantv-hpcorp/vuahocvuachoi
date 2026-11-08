@@ -1260,7 +1260,7 @@ svg.ic.sm {
   color: var(--ink);
 }
 
-.ai-loading { display: inline-flex; align-items: center; gap: 8px; }
+.ai-loading { display: inline-flex; align-items: center; gap: 8px; color: #5b21b6; font-size: 14px; font-style: italic; font-weight: 600; line-height: 1.5; }
 .ai-loading-spinner {
   flex: none;
   width: 18px;
@@ -1739,3 +1739,6 @@ button:disabled { opacity: .55; cursor: not-allowed; }
   .rev-save { min-width: 220px; height: 52px; }
   .modal { max-width: 560px; }
 }
+
+.q-heading { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.q-heading .ai-panel { flex-basis: 100%; }
