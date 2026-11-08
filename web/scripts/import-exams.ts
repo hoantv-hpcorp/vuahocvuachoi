@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { loadEnvConfig } from "@next/env";
 import { z } from "zod";
+import { examRoundLabel } from "../lib/exam-round";
 
 loadEnvConfig(process.cwd());
 
@@ -27,7 +28,7 @@ const questionSchema = z.object({
   contentText: z.string().min(1),
   options: z.array(optionSchema).nullable(),
   correctAnswer: z.string().min(1),
-  solutionText: z.string().optional(),
+  solutionText: z.string().nullable().optional(),
   points: z.number().int().nonnegative(),
   needsReview: z.boolean().default(false),
   images: z.array(imageSchema).default([]),
@@ -134,19 +135,20 @@ async function importDataset(dataset: Dataset) {
     console.log(`Uploaded ${images.length} unique figures to Supabase Storage bucket "${bucket}".`);
 
     for (const examData of dataset.exams) {
-      const round = examData.round.toUpperCase();
-      const code = `${source.toLowerCase()}-g${grade}-${round.toLowerCase()}-${String(examData.examNo).padStart(2, "0")}`;
+      const sourceRound = examData.round.toUpperCase();
+      const round = examRoundLabel(sourceRound, grade);
+      const code = `${source.toLowerCase()}-g${grade}-${sourceRound.toLowerCase()}-${String(examData.examNo).padStart(2, "0")}`;
       await prisma.$transaction(async (tx) => {
         const exam = await tx.exam.upsert({
           where: { code },
           update: {
             source, grade, year, round, examNo: examData.examNo, published: true,
-            title: `${source} - Vòng ${round} - Đề ${examData.examNo}`,
+            title: `${source} - Vòng ${examRoundLabel(round, grade)} - Đề ${examData.examNo}`,
             sourceFile: examData.sourceFile ?? dataset.sourceFile,
           },
           create: {
             code, source, grade, year, round, examNo: examData.examNo, published: true,
-            title: `${source} - Vòng ${round} - Đề ${examData.examNo}`,
+            title: `${source} - Vòng ${examRoundLabel(round, grade)} - Đề ${examData.examNo}`,
             sourceFile: examData.sourceFile ?? dataset.sourceFile,
           },
         });

@@ -667,6 +667,24 @@ svg.ic.sm {
   border-color: #e8c7ae;
 }
 
+.exam-card-round-0 {
+  background: #f1faf8;
+  border-color: #b8ddd7;
+}
+
+.exam-card-round-0:hover {
+  border-color: #79bcb2;
+}
+
+.exam-card-round-1 {
+  background: #fce6d7;
+  border-color: #eebc9b;
+}
+
+.exam-card-round-1:hover {
+  border-color: #e7a77e;
+}
+
 .exam-card .top {
   display: flex;
   justify-content: space-between;
@@ -692,6 +710,21 @@ svg.ic.sm {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+}
+
+.exam-card .meta .exam-round {
+  padding: 3px 10px;
+  border-radius: 99px;
+}
+
+.exam-round-0 {
+  color: #0f625b;
+  background: #e4f3f1;
+}
+
+.exam-round-1 {
+  color: #9a3412;
+  background: #fdeadd;
 }
 
 .exam-card .foot {
