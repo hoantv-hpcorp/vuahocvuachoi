@@ -1,6 +1,6 @@
 # Exam Practice Website: MVP Implementation Roadmap
 
-Status: M0–M5 complete (M4 user confirmed 2026-11-08) | Owner: Nathan | Stack: Next.js, Auth0, Supabase (Postgres + Storage), Prisma, Vercel, OpenAI
+Status: M0–M6 complete (M6 user confirmed 2026-11-08) | Owner: Nathan | Stack: Next.js, Auth0, Supabase (Postgres + Storage), Prisma, Vercel, OpenAI
 
 ## 1. MVP goal
 
@@ -124,14 +124,14 @@ Done when: your children use it for a real week without help navigating. **Compl
 
 ### M6: Read AI explanations aloud (2 to 3 days)
 
-- [ ] Add a speaker control with loading, stop, and retry states
-- [ ] Synthesize the current Vietnamese explanation using Gemini 3.8 Flash TTS with the Mako voice on the server
-- [ ] Authorize access to submitted or reviewed attempts and keep credentials server-side
-- [ ] Handle long explanations, playback cleanup, and service errors
-- [ ] Update the privacy notice and test Vietnamese speech on mobile and tablet
-- [ ] Configure production credentials and billing safeguards before release
+- [x] Add a speaker control with loading, stop, and retry states
+- [x] Synthesize the current Vietnamese explanation using Gemini 3.8 Flash TTS with the Mako voice on the server
+- [x] Authorize access to submitted or reviewed attempts and keep credentials server-side
+- [x] Handle long explanations, playback cleanup, and service errors
+- [x] Update the privacy notice and test Vietnamese speech on mobile and tablet
+- [x] Configure production credentials and billing safeguards before release
 
-Done when: a child can tap the speaker and listen to the current explanation, and stop it or switch explanations safely.
+Done when: a child can tap the speaker and listen to the current explanation, and stop it or switch explanations safely. **Complete — confirmed by user on 2026-11-08.**
 
 ## 5. Timeline summary
 
