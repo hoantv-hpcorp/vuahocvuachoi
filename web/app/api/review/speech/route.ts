@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { GoogleAuth } from "google-auth-library";
+import { ExternalAccountClient, GoogleAuth } from "google-auth-library";
 import { createClient } from "@supabase/supabase-js";
 import { cachedSpeechChunk } from "@/lib/speech-cache";
 import { currentUser } from "@/lib/current-user";
@@ -59,10 +59,30 @@ export async function POST(request: Request) {
     if (index >= chunks.length) return NextResponse.json({ error: "Unavailable" }, { status: 400 });
     const text = chunks[index];
       const wav = await cachedSpeechChunk(storage, text, async () => {
-      const project = process.env.GOOGLE_CLOUD_PROJECT;
+      const project = process.env.GCP_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT;
       if (!project || !/^[a-z][a-z0-9-]{4,28}[a-z0-9]$/.test(project)) throw new Error("Google Cloud project is not configured");
-      const auth = new GoogleAuth({ scopes: ["https://www.googleapis.com/auth/cloud-platform"] });
-      const client = await auth.getClient();
+      const scopes = ["https://www.googleapis.com/auth/cloud-platform"];
+      let client;
+      if (process.env.VERCEL) {
+        const { GCP_PROJECT_NUMBER, GCP_SERVICE_ACCOUNT_EMAIL, GCP_WORKLOAD_IDENTITY_POOL_ID, GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID } = process.env;
+        if (!GCP_PROJECT_NUMBER || !GCP_SERVICE_ACCOUNT_EMAIL || !GCP_WORKLOAD_IDENTITY_POOL_ID || !GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID) {
+          throw new Error("Google Cloud workload identity is not configured");
+        }
+        const oidcToken = request.headers.get("x-vercel-oidc-token");
+        if (!oidcToken) throw new Error("Vercel OIDC token is unavailable");
+        client = ExternalAccountClient.fromJSON({
+          type: "external_account",
+          audience: `//iam.googleapis.com/projects/${GCP_PROJECT_NUMBER}/locations/global/workloadIdentityPools/${GCP_WORKLOAD_IDENTITY_POOL_ID}/providers/${GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID}`,
+          subject_token_type: "urn:ietf:params:oauth:token-type:jwt",
+          token_url: "https://sts.googleapis.com/v1/token",
+          service_account_impersonation_url: `https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${GCP_SERVICE_ACCOUNT_EMAIL}:generateAccessToken`,
+          subject_token_supplier: { getSubjectToken: async () => oidcToken },
+        });
+        if (!client) throw new Error("Could not initialize Google Cloud workload identity");
+        client.scopes = scopes;
+      } else {
+        client = await new GoogleAuth({ scopes }).getClient();
+      }
       const result = await client.request<{
         candidates?: { finishReason?: string; content?: { parts?: { inlineData?: { data?: string; mimeType?: string } }[] } }[];
       }>({
