@@ -1631,6 +1631,6 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .profile-actions a, .seg button, .tool-btn { min-height: 44px; }
 
 .ai-panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-.ai-speech { flex: none; display: grid; place-items: center; width: 44px; height: 44px; margin: -8px -8px 0 0; border: 0; border-radius: 12px; color: #6d28d9; background: transparent; cursor: pointer; }
+.ai-speech { flex: none; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 8px; font: inherit; font-size: 12px; font-weight: 600; margin: -8px -8px 0 0; border: 0; border-radius: 12px; color: #6d28d9; background: transparent; cursor: pointer; }
 .ai-speech:hover { background: #eee5fb; }
 .ai-speech:focus-visible { outline: 3px solid #6d28d9; outline-offset: 2px; }
