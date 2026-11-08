@@ -93,6 +93,17 @@ export async function POST(request: Request) {
           generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { voice: "Mako" } } },
         },
         signal: request.signal,
+      }).catch((error: unknown) => {
+        if (process.env.VERCEL) {
+          try {
+            const payload = request.headers.get("x-vercel-oidc-token")?.split(".")[1];
+            const subject = payload && JSON.parse(Buffer.from(payload, "base64url").toString("utf8")).sub;
+            if (typeof subject === "string") console.error("Vercel OIDC subject:", subject);
+          } catch {
+            console.error("Could not read Vercel OIDC subject");
+          }
+        }
+        throw error;
       });
       const candidate = result.data.candidates?.[0];
       const part = candidate?.content?.parts?.find(item => item.inlineData?.data)?.inlineData;
