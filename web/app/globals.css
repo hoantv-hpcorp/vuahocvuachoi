@@ -1221,6 +1221,26 @@ svg.ic.sm {
   color: var(--ink);
 }
 
+.ai-loading { display: inline-flex; align-items: center; gap: 8px; }
+.ai-loading-spinner {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--primary-tint);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: loading-spin 1s linear infinite;
+}
+
+.ai-loading-overlay {
+  position: fixed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-loading-overlay .loading-orbit { animation: none; }
+  .ai-loading-spinner { animation: none; }
+}
+
 .rev-footer {
   flex: none;
   border-top: 1.5px solid var(--line);

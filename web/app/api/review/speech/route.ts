@@ -12,16 +12,20 @@ function splitText(text: string): string[] {
   const chunks: string[] = [];
   let chunk = "";
   for (const word of text.match(/\S+\s*/gu) ?? []) {
-    if (chunk && Buffer.byteLength(chunk + word, "utf8") > 4500) {
+    if (chunk && Buffer.byteLength(chunk + word, "utf8") > 600) {
       chunks.push(chunk);
       chunk = "";
     }
     for (const character of word) {
-      if (Buffer.byteLength(chunk + character, "utf8") > 4500) {
+      if (Buffer.byteLength(chunk + character, "utf8") > 600) {
         chunks.push(chunk);
         chunk = "";
       }
       chunk += character;
+    }
+    if (/[.!?]\s*$/u.test(word) && Buffer.byteLength(chunk, "utf8") >= 300) {
+      chunks.push(chunk);
+      chunk = "";
     }
   }
   if (chunk) chunks.push(chunk);
@@ -31,8 +35,8 @@ function splitText(text: string): string[] {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { attemptId, questionId, kind } = body ?? {};
-    if (typeof attemptId !== "string" || typeof questionId !== "string" || (kind !== "EXPLAIN" && kind !== "SOLVE")) {
+    const { attemptId, questionId, kind, index } = body ?? {};
+    if (typeof attemptId !== "string" || typeof questionId !== "string" || (kind !== "EXPLAIN" && kind !== "SOLVE") || !Number.isSafeInteger(index) || index < 0) {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     }
     const user = await currentUser();
@@ -51,8 +55,9 @@ export async function POST(request: Request) {
     const { data: bucket, error: bucketError } = await supabase.storage.getBucket(bucketName);
     if (bucketError || !bucket || bucket.public) throw new Error("Speech cache requires a private bucket");
     const storage = supabase.storage.from(bucketName);
-    const audio: string[] = [];
-    for (const text of splitText(explanation.content)) {
+    const chunks = splitText(explanation.content);
+    if (index >= chunks.length) return NextResponse.json({ error: "Unavailable" }, { status: 400 });
+    const text = chunks[index];
       const wav = await cachedSpeechChunk(storage, text, async () => {
       const project = process.env.GOOGLE_CLOUD_PROJECT;
       if (!project || !/^[a-z][a-z0-9-]{4,28}[a-z0-9]$/.test(project)) throw new Error("Google Cloud project is not configured");
@@ -74,9 +79,7 @@ export async function POST(request: Request) {
       if (candidate?.finishReason !== "STOP" || !part?.data || !part.mimeType?.startsWith("audio/wav")) throw new Error("Incomplete speech response");
       return Buffer.from(part.data, "base64");
       });
-      audio.push(wav.toString("base64"));
-    }
-    return NextResponse.json({ audio }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({ audio: wav.toString("base64"), hasNext: index + 1 < chunks.length }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("Speech synthesis unavailable", error instanceof Error ? error.message : "Unknown error");
     return NextResponse.json({ error: "Speech unavailable" }, { status: 500 });
