@@ -1,6 +1,6 @@
 # Exam Practice Website: MVP Implementation Roadmap
 
-Status: M0–M3 and M5 complete; M4 pending (M5 user confirmed 2026-11-08) | Owner: Nathan | Stack: Next.js, Auth0, Supabase (Postgres + Storage), Prisma, Vercel, OpenAI
+Status: M0–M5 complete (M4 user confirmed 2026-11-08) | Owner: Nathan | Stack: Next.js, Auth0, Supabase (Postgres + Storage), Prisma, Vercel, OpenAI
 
 ## 1. MVP goal
 
@@ -104,13 +104,13 @@ Done when: you finish a paper, see the results, override one answer, and the fin
 
 ### M4: AI explanations (3 to 4 days)
 
-- [ ] Explain and How to solve buttons on every review row
-- [ ] Server-side prompt producing Vietnamese suited to the child's grade
-- [ ] Prompt includes the question, the figure, and the stored correct answer; no child details sent
-- [ ] Cache by question and language
-- [ ] AI-generated label, worded kindly for children
+- [x] Explain and How to solve buttons on every review row
+- [x] Server-side prompt producing Vietnamese suited to the child's grade
+- [x] Prompt includes the question, the figure, and the stored correct answer; no child details sent
+- [x] Cache by question and language
+- [x] AI-generated label, worded kindly for children
 
-Done when: a second tap on the same question returns instantly, and the output reads naturally to a child of that grade. Test with your children early; expect a few rounds of prompt tuning.
+Done when: a second tap on the same question returns instantly, and the output reads naturally to a child of that grade. Test with your children early; expect a few rounds of prompt tuning. **Complete — confirmed by user on 2026-11-08.**
 
 ### M5: History and release (3 to 4 days)
 
@@ -122,6 +122,17 @@ Done when: a second tap on the same question returns instantly, and the output r
 
 Done when: your children use it for a real week without help navigating. **Complete — confirmed by user on 2026-11-08.**
 
+### M6: Read AI explanations aloud (2 to 3 days)
+
+- [ ] Add a speaker control with loading, stop, and retry states
+- [ ] Synthesize the current Vietnamese explanation using Gemini 3.8 Flash TTS with the Mako voice on the server
+- [ ] Authorize access to submitted or reviewed attempts and keep credentials server-side
+- [ ] Handle long explanations, playback cleanup, and service errors
+- [ ] Update the privacy notice and test Vietnamese speech on mobile and tablet
+- [ ] Configure production credentials and billing safeguards before release
+
+Done when: a child can tap the speaker and listen to the current explanation, and stop it or switch explanations safely.
+
 ## 5. Timeline summary
 
 | Milestone | Days |
@@ -132,7 +143,8 @@ Done when: your children use it for a real week without help navigating. **Compl
 | M3 Grading and shared review | 4 to 5 |
 | M4 AI explanations | 3 to 4 |
 | M5 History and release | 3 to 4 |
-| Total | 20 to 28 |
+| M6 Read explanations aloud | 2 to 3 |
+| Total | 22 to 31 |
 
 ## 6. Testing
 

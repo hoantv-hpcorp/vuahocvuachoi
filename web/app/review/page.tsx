@@ -31,5 +31,5 @@ export default async function ReviewPage({ searchParams }: { searchParams: Promi
     if (!answer || answer.systemCorrect === null || answer.pointsPossible === null) throw new Error("Attempt has not been fully graded");
     return { ...q, images: q.images.map(i => urls.get(i.storageKey)!), options: q.options.map(o => ({ ...o, image: o.image ? urls.get(o.image.storageKey) ?? null : null })), answer: answer.rawAnswer, systemCorrect: answer.systemCorrect, overrideCorrect: answer.overrideCorrect, points: answer.pointsPossible };
   });
-  return <Review attemptId={attempt.id} title={attempt.exam.title} questions={questions} />;
+  return <Review key={attempt.id} attemptId={attempt.id} title={attempt.exam.title} questions={questions} />;
 }

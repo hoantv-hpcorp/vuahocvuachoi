@@ -166,6 +166,8 @@ async function importDataset(dataset: Dataset) {
             },
           });
 
+          // Reimported question text, answers, or images may invalidate AI explanations.
+          await tx.aiExplanation.deleteMany({ where: { questionId: question.id } });
           await tx.questionOption.deleteMany({ where: { questionId: question.id } });
           await tx.questionImage.deleteMany({ where: { questionId: question.id } });
           const imageIds = new Map<string, string>();

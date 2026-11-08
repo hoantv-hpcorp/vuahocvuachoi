@@ -17,6 +17,7 @@
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
     "@supabase/supabase-js": "^2.119.0",
+    "google-auth-library": "^11.3.3",
     "next": "^16.4.5",
     "openai": "^7.53.0",
     "pg": "^8.16.3",

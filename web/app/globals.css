@@ -1605,4 +1605,12 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .history-clear { margin-top: 16px; }
 .privacy-copy { line-height: 1.6; }
 .privacy-copy p { margin-top: 16px; }
+.ai-tools { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+.rev-tools > .ai-panel { flex-basis: 100%; }
+.ai-body { white-space: pre-wrap; overflow-wrap: anywhere; }
 .profile-actions a, .seg button, .tool-btn { min-height: 44px; }
+
+.ai-panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.ai-speech { flex: none; display: grid; place-items: center; width: 44px; height: 44px; margin: -8px -8px 0 0; border: 0; border-radius: 12px; color: #6d28d9; background: transparent; cursor: pointer; }
+.ai-speech:hover { background: #eee5fb; }
+.ai-speech:focus-visible { outline: 3px solid #6d28d9; outline-offset: 2px; }
