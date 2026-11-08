@@ -657,6 +657,12 @@ svg.ic.sm {
   transition: border-color 0.12s ease;
 }
 
+.exam-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .exam-card:hover {
   border-color: #e8c7ae;
 }
@@ -1634,3 +1640,69 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .ai-speech { flex: none; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 8px; font: inherit; font-size: 12px; font-weight: 600; margin: -8px -8px 0 0; border: 0; border-radius: 12px; color: #6d28d9; background: transparent; cursor: pointer; }
 .ai-speech:hover { background: #eee5fb; }
 .ai-speech:focus-visible { outline: 3px solid #6d28d9; outline-offset: 2px; }
+
+/* Desktop workspace: retain the compact app layout for tablets and phones. */
+@media (min-width: 1024px) {
+  .stage { padding: 0; align-items: stretch; }
+  .device {
+    width: 100%;
+    height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .statusbar { display: none; }
+  .appbar {
+    min-height: 80px;
+    padding: 16px clamp(32px, 4vw, 64px);
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+  }
+  .appbar .title { font-size: 21px; }
+  .body {
+    padding: 36px clamp(32px, 4vw, 64px) 48px;
+    gap: 20px;
+  }
+  .body > * { width: 100%; max-width: 1040px; margin-left: auto; margin-right: auto; }
+  .lead { padding: 0; color: var(--ink); font-size: 30px; line-height: 1.2; font-weight: 800; }
+  .device:has(> .tabbar) { display: grid; grid-template-columns: 240px minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  .device:has(> .tabbar) > .appbar { grid-column: 2; grid-row: 1; }
+  .device:has(> .tabbar) > .body { grid-column: 2; grid-row: 2; }
+  .tabbar {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 8px;
+    border-top: 0;
+    border-right: 1px solid var(--line);
+    padding: 36px 18px;
+  }
+  .tabbar::before {
+    content: "TIMO · Luyện đề";
+    display: block;
+    padding: 4px 14px 34px;
+    color: var(--primary-deep);
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .tabbar .tab { flex: none; flex-direction: row; gap: 14px; padding: 14px; font-size: 15px; }
+  .tabbar .tab.on { background: var(--primary-tint); }
+  .exam-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .exam-card { min-width: 0; padding: 26px; gap: 16px; }
+  .exam-card h2 { font-size: 20px; line-height: 1.35; }
+  .exam-card .foot { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--line); }
+  .exam-cta { height: 48px; padding: 0 18px; font-size: 15px; }
+  .profile-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+  .add-card { grid-column: auto; min-height: 230px; }
+  .profile-form { max-width: 600px; }
+  .hist-row { padding: 20px 24px; }
+  .q-card { padding: 28px; gap: 18px; }
+  .q-nav, .rev-footer { padding-left: max(32px, calc((100% - 1040px) / 2)); padding-right: max(32px, calc((100% - 1040px) / 2)); }
+  .q-nav .btn { flex: none; min-width: 180px; }
+  .q-nav .q-next { margin-left: auto; }
+  .rev-footer { flex-direction: row; align-items: center; justify-content: space-between; }
+  .rev-total { gap: 24px; }
+  .rev-save { min-width: 220px; height: 52px; }
+  .modal { max-width: 560px; }
+}
