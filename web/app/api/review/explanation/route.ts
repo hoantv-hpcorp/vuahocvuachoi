@@ -6,17 +6,17 @@ import OpenAI from "openai";
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  let body: { attemptId?: unknown; questionId?: unknown; kind?: unknown };
+  let body: { attemptId?: unknown; questionId?: unknown; kind?: unknown; regenerate?: unknown };
   try { body = await request.json(); } catch { return new Response("Invalid request", { status: 400 }); }
-  const { attemptId, questionId, kind } = body ?? {};
-  if (typeof attemptId !== "string" || typeof questionId !== "string" || (kind !== "EXPLAIN" && kind !== "SOLVE")) return new Response("Invalid request", { status: 400 });
+  const { attemptId, questionId, kind, regenerate = false } = body ?? {};
+  if (typeof attemptId !== "string" || typeof questionId !== "string" || (kind !== "EXPLAIN" && kind !== "SOLVE") || typeof regenerate !== "boolean" || (regenerate && kind !== "EXPLAIN")) return new Response("Invalid request", { status: 400 });
   const encoder = new TextEncoder();
   const abort = new AbortController();
   request.signal.addEventListener("abort", () => abort.abort(), { once: true });
   const stream = new ReadableStream({
     async start(controller) {
       const send = (event: object) => { if (!abort.signal.aborted) controller.enqueue(encoder.encode(JSON.stringify(event) + "\n")); };
-      try { await getExplanation(attemptId, questionId, kind, abort.signal, send); }
+      try { await getExplanation(attemptId, questionId, kind, regenerate, abort.signal, send); }
       catch (error) {
         if (!abort.signal.aborted) { console.error("OpenAI explanation unavailable", error); send({ type: "error" }); }
       } finally { if (!abort.signal.aborted) controller.close(); }
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
   return new Response(stream, { headers: { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store, no-transform", "X-Accel-Buffering": "no" } });
 }
 
-async function getExplanation(attemptId: string, questionId: string, kind: "EXPLAIN" | "SOLVE", signal: AbortSignal, send: (event: object) => void) {
+async function getExplanation(attemptId: string, questionId: string, kind: "EXPLAIN" | "SOLVE", regenerate: boolean, signal: AbortSignal, send: (event: object) => void) {
   if (kind !== "EXPLAIN" && kind !== "SOLVE") throw new Error("Invalid explanation type");
   const user = await currentUser();
   const question = await prisma.question.findFirst({
@@ -35,7 +35,7 @@ async function getExplanation(attemptId: string, questionId: string, kind: "EXPL
   });
   if (!question) throw new Error("Question unavailable");
   const cached = await prisma.aiExplanation.findUnique({ where: { questionId_kind_language: { questionId, kind, language: "vi" } } });
-  if (cached) { send({ type: "done", content: cached.content }); return; }
+  if (cached && !regenerate) { send({ type: "done", content: cached.content }); return; }
   if (!process.env.OPENAI_API_KEY) throw new Error("AI configuration missing");
 
   const q = question;
@@ -89,6 +89,6 @@ async function getExplanation(attemptId: string, questionId: string, kind: "EXPL
   }
   text = text.trim();
   if (!completed || !text || signal.aborted) throw new Error("Explanation unavailable");
-  const saved = await prisma.aiExplanation.upsert({ where: { questionId_kind_language: { questionId, kind, language: "vi" } }, create: { questionId, kind, language: "vi", content: text, model }, update: {} });
+  const saved = await prisma.aiExplanation.upsert({ where: { questionId_kind_language: { questionId, kind, language: "vi" } }, create: { questionId, kind, language: "vi", content: text, model }, update: regenerate ? { content: text, model } : {} });
   send({ type: "done", content: saved.content });
 }

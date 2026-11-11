@@ -1686,8 +1686,12 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .ai-body { white-space: pre-wrap; overflow-wrap: anywhere; }
 .profile-actions a, .seg button, .tool-btn { min-height: 44px; }
 
-.ai-panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-.ai-speech { flex: none; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 8px; font: inherit; font-size: 12px; font-weight: 600; margin: -8px -8px 0 0; border: 0; border-radius: 12px; color: #6d28d9; background: transparent; cursor: pointer; }
+.ai-panel-heading { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.ai-panel-actions { display: flex; align-items: center; gap: 4px; margin: -8px -8px 0 0; }
+.ai-regenerate { min-height: 44px; padding: 0 8px; border: 0; border-radius: 12px; color: #6d28d9; background: transparent; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.ai-regenerate:hover { background: #eee5fb; }
+.ai-regenerate:focus-visible { outline: 3px solid #6d28d9; outline-offset: 2px; }
+.ai-speech { flex: none; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 8px; font: inherit; font-size: 12px; font-weight: 600; margin: 0; border: 0; border-radius: 12px; color: #6d28d9; background: transparent; cursor: pointer; }
 .ai-speech:hover { background: #eee5fb; }
 .ai-speech:focus-visible { outline: 3px solid #6d28d9; outline-offset: 2px; }
 

@@ -70,17 +70,17 @@ export function Explanation({ attemptId, questionId, number, hint = false }: { a
       if (!current.controller.signal.aborted) { stopSpeech(); setSpeechError("Chưa nghe được lời giải thích. Con hãy thử lại nhé."); }
     }
   };
-  const open = async (kind: Kind) => {
+  const open = async (kind: Kind, regenerate = false) => {
     stopSpeech(); setSpeechError("");
     if (loading) return;
-    if (active === kind && !error) { setActive(null); return; }
+    if (!regenerate && active === kind && !error) { setActive(null); return; }
     setActive(kind); setError("");
-    if (contents[kind]) return;
+    if (contents[kind] && !regenerate) return;
     setLoading(kind); setPartial("");
     const controller = new AbortController();
     explanationRequest.current = controller;
     try {
-      const response = await fetch("/api/review/explanation", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ attemptId, questionId, kind }), signal: controller.signal });
+      const response = await fetch("/api/review/explanation", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ attemptId, questionId, kind, regenerate }), signal: controller.signal });
       if (!response.ok || !response.body) throw new Error("Explanation unavailable");
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
@@ -107,7 +107,7 @@ export function Explanation({ attemptId, questionId, number, hint = false }: { a
       if (!controller.signal.aborted) { explanationRequest.current = null; setLoading(null); }
     }
   };
-  const panel = active && <div className="ai-panel open"><div className="ai-panel-inner"><div className="ai-panel-heading"><span className="ai-tag">AI cùng con tìm hiểu · Hãy cùng người lớn kiểm tra nhé</span>{!loading && !error && contents[active] && <button type="button" className="ai-speech" onClick={() => void speak()} aria-label={speechState === "idle" ? "Nghe giải thích" : "Dừng đọc"} title={speechState === "idle" ? "Nghe giải thích" : "Dừng đọc"}><span>{speechState === "idle" ? "Nghe giải thích" : "Dừng đọc"}</span>{speechState === "loading" ? <span aria-hidden="true">…</span> : speechState === "playing" ? <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2" /></svg> : <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15 9a5 5 0 0 1 0 6M18 6a9 9 0 0 1 0 12"/></svg>}</button>}</div>{speechState === "loading" && <div className="ai-loading" role="status"><span className="ai-loading-spinner" aria-hidden="true" />Cô chú đang chuẩn bị giọng đọc nhé…</div>}<div className="ai-body">{loading ? (partial || <span className="ai-loading" role="status"><span className="ai-loading-spinner" aria-hidden="true" />Cô chú đang đọc đề và chuẩn bị giải thích cho con nhé…</span>) : (error || contents[active])}</div>{speechError && <div role="status">{speechError}</div>}{error && <button type="button" className="tool-btn" onClick={() => void open(active)}>Thử lại</button>}</div></div>;
+  const panel = active && <div className="ai-panel open"><div className="ai-panel-inner"><div className="ai-panel-heading"><span className="ai-tag">AI cùng con tìm hiểu · Hãy cùng người lớn kiểm tra nhé</span>{!loading && contents[active] && <div className="ai-panel-actions">{hint && <button type="button" className="ai-regenerate" onClick={() => void open(active, true)}>Gợi ý lại</button>}<button type="button" className="ai-speech" onClick={() => void speak()} aria-label={speechState === "idle" ? "Nghe giải thích" : "Dừng đọc"} title={speechState === "idle" ? "Nghe giải thích" : "Dừng đọc"}><span>{speechState === "idle" ? "Nghe giải thích" : "Dừng đọc"}</span>{speechState === "loading" ? <span aria-hidden="true">…</span> : speechState === "playing" ? <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2" /></svg> : <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15 9a5 5 0 0 1 0 6M18 6a9 9 0 0 1 0 12"/></svg>}</button></div>}</div>{speechState === "loading" && <div className="ai-loading" role="status"><span className="ai-loading-spinner" aria-hidden="true" />Cô chú đang chuẩn bị giọng đọc nhé…</div>}<div className="ai-body">{loading ? (partial || <span className="ai-loading" role="status"><span className="ai-loading-spinner" aria-hidden="true" />Cô chú đang đọc đề và chuẩn bị giải thích cho con nhé…</span>) : (contents[active] || error)}</div>{speechError && <div role="status">{speechError}</div>}{error && <div role="status">{contents[active] ? error : null}<button type="button" className="tool-btn" onClick={() => void open(active, !!contents[active])}>Thử lại</button></div>}</div></div>;
   return <>
     <div className="ai-tools" role="group" aria-label={`Trợ giúp câu ${number}`}>
       <button type="button" className="tool-btn" aria-expanded={active === "EXPLAIN"} disabled={!!loading} onClick={() => void open("EXPLAIN")}>{hint ? (active === "EXPLAIN" ? "Ẩn gợi ý" : "Gợi ý") : "Giải thích đề"}</button>
