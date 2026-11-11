@@ -46,7 +46,7 @@ export function Review({ attemptId, title, questions }: { attemptId: string; tit
       {(figureUrls.get(q.id)?.images ?? q.images).map((src, i) => <div className="figure" key={src}><img src={src} alt={`Hình minh họa ${i + 1} cho câu ${q.number}`} /></div>)}
       <div className="ans-line"><span>Con trả lời: <b>{displayAnswer(q, q.answer)}</b></span><span>Đáp án: <b>{displayAnswer(q, q.correctAnswer)}</b></span></div>
       <div className="rev-tools"><div className="seg" role="group" aria-label={`Đánh giá câu ${q.number}`}><button type="button" disabled={!!pending} aria-pressed={!marks[q.id]} className={!marks[q.id] ? "on-bad" : ""} onClick={() => void mark(q, false)}>Đánh dấu sai</button><button type="button" disabled={!!pending} aria-pressed={marks[q.id]} className={marks[q.id] ? "on-ok" : ""} onClick={() => void mark(q, true)}>Đánh dấu đúng</button></div><Explanation attemptId={attemptId} questionId={q.id} number={q.number} /></div>
-    </article>)}</div>{error && <p role="alert">{error}</p>}</div>
-    <div className="rev-footer"><div className="rev-total" aria-live="polite"><span className="lbl">Tổng điểm (tham khảo)</span><span className="val">{total} <small>/ {possible}</small></span></div><button className="btn btn-primary rev-save" disabled={!!pending} onClick={() => void save()}>Lưu kết quả</button></div>
+    </article>)}</div>{error && <p role="alert">{error}</p>}
+    <div className="rev-footer"><div className="rev-total" aria-live="polite"><span className="lbl">Tổng điểm (tham khảo)</span><span className="val">{total} <small>/ {possible}</small></span></div><button className="btn btn-primary rev-save" disabled={!!pending} onClick={() => void save()}>Lưu kết quả</button></div></div>
   </Device>;
 }
