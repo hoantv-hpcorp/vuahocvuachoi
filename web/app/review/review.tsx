@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppBar } from "@/components/AppBar";
+import { CloseIcon } from "@/components/CloseIcon";
 import { Device } from "@/components/Device";
 import { Explanation } from "@/components/Explanation";
 import { questionTextWithoutChoices } from "@/lib/question-text";
@@ -39,7 +40,7 @@ export function Review({ attemptId, title, questions }: { attemptId: string; tit
     const option = q.type === "MCQ" ? q.options.find(o => String.fromCharCode(64 + o.position) === value.trim().toUpperCase()) : undefined;
     return <>{value}{option?.text ? `. ${option.text}` : ""}{option?.image && <img className="option-image" src={figureUrls.get(q.id)?.options[q.options.indexOf(option)] ?? option.image} alt={`Hình đáp án ${value}`} />}</>;
   };
-  return <Device><AppBar><Link href="/exams" className="btn btn-ghost" onClick={e => { if (pendingRef.current) e.preventDefault(); }}>Thoát</Link><div className="title title-sm">Cùng xem lại bài làm</div><span className="spacer"/><span className="savedot" aria-live="polite">{pending ? "Đang lưu…" : error ? "Chưa lưu" : "Đã lưu"}</span></AppBar>
+  return <Device><AppBar><div className="title title-sm">Cùng xem lại bài làm</div><span className="spacer"/><span className="savedot" aria-live="polite">{pending ? "Đang lưu…" : error ? "Chưa lưu" : "Đã lưu"}</span><Link href="/exams" className="btn btn-ghost close-btn" aria-label="Thoát" onClick={e => { if (pendingRef.current) e.preventDefault(); }}><CloseIcon /></Link></AppBar>
     <div className="body padless-bottom"><div className="card rev-hero"><h1>Con đã rất cố gắng!</h1><p>{title} · Cùng xem lại từng câu để hiểu bài hơn nhé.</p></div><div className="rev-list">{questions.map(q => <article className={`card rev-row${marks[q.id] ? "" : " needs-review"}`} key={q.id}>
       <div className="head"><span className="rev-q-label">Câu {q.number} · {q.topic}</span><span className={`pill ${marks[q.id] ? "pill-ok" : "pill-look"}`}>{marks[q.id] ? "Đúng" : "Cùng xem lại"}</span></div>
       <div className="q question-text">{q.type === "MCQ" ? questionTextWithoutChoices(q.contentText, q.options) : q.contentText}</div>

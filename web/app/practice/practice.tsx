@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppBar } from "@/components/AppBar";
+import { CloseIcon } from "@/components/CloseIcon";
 import { Device } from "@/components/Device";
 import { Explanation } from "@/components/Explanation";
 import { submitAttempt } from "./actions";
@@ -62,7 +63,7 @@ export function Practice({ attemptId, title, questions, initialAnswers }: { atte
   };
   if (!section) return <Device><div className="body"><p>Đề này chưa có câu hỏi.</p><Link href="/exams">Về danh sách đề</Link></div></Device>;
   const unanswered = questions.filter(item => !(answers[item.id] ?? "").trim()).length;
-  return <Device><AppBar><button type="button" className="btn btn-ghost" onClick={() => { if ((running.current || pending.current.size) && !window.confirm("Câu trả lời chưa được lưu hết. Con có muốn rời trang?")) return; router.back(); }}>Thoát</button><div className="title title-sm">{title}</div><span className="spacer" /><span aria-live="polite" className="savedot">{status === "saved" ? "Đã lưu" : status === "saving" ? "Đang lưu…" : "Chưa lưu"}</span></AppBar>
+  return <Device><AppBar><div className="title title-sm">{title}</div><span className="spacer" /><span aria-live="polite" className="savedot">{status === "saved" ? "Đã lưu" : status === "saving" ? "Đang lưu…" : "Chưa lưu"}</span><button type="button" className="btn btn-ghost close-btn" aria-label="Thoát" onClick={() => { if ((running.current || pending.current.size) && !window.confirm("Câu trả lời chưa được lưu hết. Con có muốn rời trang?")) return; router.back(); }}><CloseIcon /></button></AppBar>
     <div className="body" ref={bodyRef}><div className="q-progress"><div className="track"><i style={{ width: `${(index + 1) / sections.length * 100}%` }} /></div><span className="count">Phần {index + 1} / {sections.length}</span></div>
       <nav className="grade-filters" aria-label="Các phần của đề thi">{sections.map((item, i) => <button type="button" key={i} className={`chip ${i === index ? "on" : ""}`} aria-current={i === index ? "step" : undefined} onClick={() => goToSection(i)}>{item.topic}</button>)}</nav>
       <section className="practice-section" aria-labelledby="practice-section-title"><h1 className="practice-section-title" id="practice-section-title">Phần {index + 1} · {section.topic}</h1><p className="practice-note">Làm lần lượt các câu trong phần này. Cuộn xuống để xem thêm nhé.</p>

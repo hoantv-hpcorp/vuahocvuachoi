@@ -156,6 +156,13 @@ a {
 
 .appbar .title-sm {
   font-size: 18px;
+  min-width: 0;
+}
+
+.close-btn {
+  width: 44px;
+  height: 44px;
+  flex: none;
 }
 
 .appbar .spacer {
@@ -262,6 +269,16 @@ a {
 
 .btn-ghost:hover {
   color: var(--primary-deep);
+}
+
+.btn.close-btn {
+  border-radius: 14px;
+  background: var(--primary-tint);
+  color: var(--primary-deep);
+}
+
+.btn.close-btn:hover {
+  background: #f8d7c2;
 }
 
 .icon-btn {
