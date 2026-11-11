@@ -2,6 +2,7 @@ import { currentUser } from "@/lib/current-user";
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@supabase/supabase-js";
 import OpenAI from "openai";
+import { highlightVocabularyList, plainExplanation } from "@/lib/explanation-highlights";
 
 export const runtime = "nodejs";
 
@@ -35,7 +36,7 @@ async function getExplanation(attemptId: string, questionId: string, kind: "EXPL
   });
   if (!question) throw new Error("Question unavailable");
   const cached = await prisma.aiExplanation.findUnique({ where: { questionId_kind_language: { questionId, kind, language: "vi" } } });
-  if (cached && !regenerate) { send({ type: "done", content: cached.content }); return; }
+  if (cached && !regenerate) { send({ type: "done", content: cached.content, highlightedContent: kind === "EXPLAIN" ? highlightVocabularyList(cached.highlightedContent || cached.content, question.contentText) : cached.highlightedContent }); return; }
   if (!process.env.OPENAI_API_KEY) throw new Error("AI configuration missing");
 
   const q = question;
@@ -65,8 +66,8 @@ async function getExplanation(attemptId: string, questionId: string, kind: "EXPL
           : "Hướng dẫn từng bước giải dễ hiểu và giải thích vì sao ra đáp án. " 
           + "Dùng đáp án được lưu để kiểm tra; nếu đề hoặc hình không rõ hay mâu thuẫn với đáp án, nói thật và nhờ người lớn cùng xem, không bịa."
           + "Nếu kết quả của bạn khác với kết quả đã được lưu thì nhắc nhở bạn nhỏ kiểm tra lại với bố mẹ, còn nếu đã khớp rồi thì không cần nhắc gì tới kết quả đã lưu trong câu trả lời của bạn nữa."} 
-          Chỉ trả lời bằng văn bản thuần, không dùng Markdown. Đối tượng đọc là bạn nhỏ đó chứ không phải cha mẹ nên giọng văn cần nhẹ nhàng, thân thiện, không hù dọa hay trách móc. 
-          Nếu đề bài có hình minh họa, hãy mô tả hình ảnh đó bằng lời để bạn nhỏ hình dung.
+          ${kind === "EXPLAIN" ? "Chỉ dùng văn bản thuần và thẻ <mark>...</mark>. Đặt thẻ quanh từng từ hoặc cụm từ tiếng Anh được trích nguyên văn từ đề bài khi giải thích nghĩa của chúng. Không dùng thẻ hay thuộc tính HTML khác, không dùng Markdown. Nếu không có từ tiếng Anh cần giải thích, trả lời bằng văn bản thuần." : "Chỉ trả lời bằng văn bản thuần, không dùng Markdown."} Đối tượng đọc là bạn nhỏ đó chứ không phải cha mẹ nên giọng văn cần nhẹ nhàng, thân thiện, không hù dọa hay trách móc. 
+          Nếu đề bài có hình minh họa, hãy mô tả hình ảnh đó bằng lời để bạn nhỏ hình dung. Nếu không có hình minh họa, không nhắc đến việc không có hình, ví dụ không viết "Không có hình minh họa trong đề."
           Hãy gọi bạn nhỏ là "con" và không dùng tên riêng. Tự xưng là "cô chú" (lưu ý là luôn luôn là "cô chú" chứ không phải "cô" hoặc "chú").
           Đọc bằng tiếng Việt với giọng miền Bắc, tự nhiên như người Hà Nội. Giọng ấm áp, thân thiện, đọc chậm vừa phải như đang hướng dẫn một em học sinh tiểu học.
           `,
@@ -80,7 +81,7 @@ async function getExplanation(attemptId: string, questionId: string, kind: "EXPL
   for await (const event of stream) {
     if (event.type === "response.output_text.delta") {
       text += event.delta;
-      send({ type: "delta", text: event.delta });
+      if (kind !== "EXPLAIN") send({ type: "delta", text: event.delta });
     } else if (event.type === "response.completed") {
       completed = event.response.status === "completed";
     } else if (event.type === "response.failed" || event.type === "response.incomplete" || event.type === "error") {
@@ -89,6 +90,8 @@ async function getExplanation(attemptId: string, questionId: string, kind: "EXPL
   }
   text = text.trim();
   if (!completed || !text || signal.aborted) throw new Error("Explanation unavailable");
-  const saved = await prisma.aiExplanation.upsert({ where: { questionId_kind_language: { questionId, kind, language: "vi" } }, create: { questionId, kind, language: "vi", content: text, model }, update: regenerate ? { content: text, model } : {} });
-  send({ type: "done", content: saved.content });
+  const highlightedContent = kind === "EXPLAIN" ? highlightVocabularyList(text, q.contentText) : null;
+  const contentText = highlightedContent ? plainExplanation(highlightedContent) : text;
+  const saved = await prisma.aiExplanation.upsert({ where: { questionId_kind_language: { questionId, kind, language: "vi" } }, create: { questionId, kind, language: "vi", content: contentText, highlightedContent, model }, update: regenerate ? { content: contentText, highlightedContent, model } : {} });
+  send({ type: "done", content: saved.content, highlightedContent: saved.highlightedContent });
 }

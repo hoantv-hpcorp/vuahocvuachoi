@@ -6,12 +6,14 @@ import { AppBar } from "@/components/AppBar";
 import { CloseIcon } from "@/components/CloseIcon";
 import { Device } from "@/components/Device";
 import { Explanation } from "@/components/Explanation";
+import { HighlightedQuestion } from "@/components/HighlightedText";
 import { submitAttempt } from "./actions";
 import { questionTextWithoutChoices } from "@/lib/question-text";
 
 type Question = { id: string; number: number; topic: string; type: "MCQ" | "FILL"; contentText: string; images: string[]; options: { position: number; text: string | null; image: string | null }[] };
 export function Practice({ attemptId, title, questions, initialAnswers }: { attemptId: string; title: string; questions: Question[]; initialAnswers: Record<string, string> }) {
   const [answers, setAnswers] = useState(initialAnswers);
+  const [highlights, setHighlights] = useState<Record<string, string[]>>({});
   const [index, setIndex] = useState(0);
   const [status, setStatus] = useState<"saved" | "saving" | "error">("saved");
   const [confirm, setConfirm] = useState(false);
@@ -67,7 +69,7 @@ export function Practice({ attemptId, title, questions, initialAnswers }: { atte
     <div className="body" ref={bodyRef}><div className="q-progress"><div className="track"><i style={{ width: `${(index + 1) / sections.length * 100}%` }} /></div><span className="count">Phần {index + 1} / {sections.length}</span></div>
       <nav className="grade-filters" aria-label="Các phần của đề thi">{sections.map((item, i) => <button type="button" key={i} className={`chip ${i === index ? "on" : ""}`} aria-current={i === index ? "step" : undefined} onClick={() => goToSection(i)}>{item.topic}</button>)}</nav>
       <section className="practice-section" aria-labelledby="practice-section-title"><h1 className="practice-section-title" id="practice-section-title">Phần {index + 1} · {section.topic}</h1><p className="practice-note">Làm lần lượt các câu trong phần này. Cuộn xuống để xem thêm nhé.</p>
-      {section.questions.map(q => <div className="card q-card" key={q.id}><div className="q-heading"><div className="q-num">CÂU {q.number} · {q.type === "MCQ" ? "TRẮC NGHIỆM" : "TỰ LUẬN"}</div>{hints && <Explanation attemptId={attemptId} questionId={q.id} number={q.number} hint />}</div><div className="q-text question-text">{q.type === "MCQ" ? questionTextWithoutChoices(q.contentText, q.options) : q.contentText}</div>{q.images.map((src, i) => <div className="figure" key={src}><img src={src} alt={`Hình minh họa ${i + 1} cho câu ${q.number}`} /></div>)}
+      {section.questions.map(q => <div className="card q-card" key={q.id}><div className="q-heading"><div className="q-num">CÂU {q.number} · {q.type === "MCQ" ? "TRẮC NGHIỆM" : "TỰ LUẬN"}</div>{hints && <Explanation attemptId={attemptId} questionId={q.id} number={q.number} hint questionText={q.type === "MCQ" ? questionTextWithoutChoices(q.contentText, q.options) : q.contentText} onHighlights={phrases => setHighlights(previous => ({ ...previous, [q.id]: phrases }))} />}</div><div className="q-text question-text"><HighlightedQuestion text={q.type === "MCQ" ? questionTextWithoutChoices(q.contentText, q.options) : q.contentText} phrases={highlights[q.id] || []} /></div>{q.images.map((src, i) => <div className="figure" key={src}><img src={src} alt={`Hình minh họa ${i + 1} cho câu ${q.number}`} /></div>)}
       {q.type === "MCQ" ? <div className="opts" role="radiogroup" aria-label={`Đáp án câu ${q.number}`}>{q.options.map(o => { const letter = String.fromCharCode(64 + o.position); return <button key={o.position} type="button" role="radio" aria-checked={answers[q.id] === letter} className={`opt ${answers[q.id] === letter ? "sel" : ""}`} onClick={() => answer(q.id, letter)}><span className="key">{letter}</span>{o.text}{o.image && <img className="option-image" src={o.image} alt={`Hình đáp án ${letter}`} />}</button>; })}</div> : <input className="free-input" aria-label={`Đáp án câu ${q.number}`} value={answers[q.id] ?? ""} onChange={e => answer(q.id, e.target.value)} placeholder="Nhập câu trả lời" />}{hints && <div id={`hint-panel-${q.id}`} />}</div>)}</section>
       {status === "error" && <p role="alert">Chưa lưu được câu trả lời. <button className="link-like" onClick={() => void flush()}>Thử lưu lại</button></p>}
     <div className="q-nav">{index > 0 && <button className="btn btn-soft q-back" onClick={() => goToSection(index - 1)}>Phần trước</button>}{index < sections.length - 1 ? <button className="btn btn-primary q-next" onClick={() => goToSection(index + 1)}>Phần tiếp theo</button> : <button className="btn btn-primary q-next" onClick={() => setConfirm(true)}>Nộp bài</button>}</div></div>

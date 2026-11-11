@@ -1,13 +1,17 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { parseHighlights } from "@/lib/explanation-highlights";
+import { HighlightedExplanation } from "@/components/HighlightedText";
 
 type Kind = "EXPLAIN" | "SOLVE";
-export function Explanation({ attemptId, questionId, number, hint = false }: { attemptId: string; questionId: string; number: number; hint?: boolean }) {
+export function Explanation({ attemptId, questionId, number, hint = false, questionText = "", onHighlights }: { attemptId: string; questionId: string; number: number; hint?: boolean; questionText?: string; onHighlights?: (phrases: string[]) => void }) {
   const [panelTarget, setPanelTarget] = useState<HTMLElement | null>(null);
   useEffect(() => { if (hint) setPanelTarget(document.getElementById(`hint-panel-${questionId}`)); }, [hint, questionId]);
   const [active, setActive] = useState<Kind | null>(null);
   const [contents, setContents] = useState<Partial<Record<Kind, string>>>({});
+  const [formatted, setFormatted] = useState<Partial<Record<Kind, string>>>({});
+  const [phrases, setPhrases] = useState<string[]>([]);
   const [loading, setLoading] = useState<Kind | null>(null);
   const [partial, setPartial] = useState("");
   const explanationRequest = useRef<AbortController | null>(null);
@@ -73,9 +77,9 @@ export function Explanation({ attemptId, questionId, number, hint = false }: { a
   const open = async (kind: Kind, regenerate = false) => {
     stopSpeech(); setSpeechError("");
     if (loading) return;
-    if (!regenerate && active === kind && !error) { setActive(null); return; }
+    if (!regenerate && active === kind && !error) { setActive(null); onHighlights?.([]); return; }
     setActive(kind); setError("");
-    if (contents[kind] && !regenerate) return;
+    if (contents[kind] && !regenerate) { onHighlights?.(phrases); return; }
     setLoading(kind); setPartial("");
     const controller = new AbortController();
     explanationRequest.current = controller;
@@ -93,9 +97,15 @@ export function Explanation({ attemptId, questionId, number, hint = false }: { a
         buffer = lines.pop() ?? "";
         for (const line of lines) {
           if (!line) continue;
-          const event = JSON.parse(line) as { type: string; text?: string; content?: string };
+          const event = JSON.parse(line) as { type: string; text?: string; content?: string; highlightedContent?: string | null };
           if (event.type === "delta" && event.text) setPartial(previous => previous + event.text);
-          else if (event.type === "done" && event.content) { setContents(previous => ({ ...previous, [kind]: event.content! })); completed = true; }
+          else if (event.type === "done" && event.content) {
+            const formattedContent = event.highlightedContent || event.content;
+            const matches = [...new Set(parseHighlights(formattedContent).filter(part => part.highlighted && questionText.toLowerCase().includes(part.text.toLowerCase())).map(part => part.text))];
+            setContents(previous => ({ ...previous, [kind]: event.content! }));
+            setFormatted(previous => ({ ...previous, [kind]: formattedContent }));
+            setPhrases(matches); onHighlights?.(matches); completed = true;
+          }
           else if (event.type === "error") throw new Error("Explanation unavailable");
         }
         if (done) break;
@@ -107,7 +117,7 @@ export function Explanation({ attemptId, questionId, number, hint = false }: { a
       if (!controller.signal.aborted) { explanationRequest.current = null; setLoading(null); }
     }
   };
-  const panel = active && <div className="ai-panel open"><div className="ai-panel-inner"><div className="ai-panel-heading"><span className="ai-tag">AI cùng con tìm hiểu · Hãy cùng người lớn kiểm tra nhé</span>{!loading && contents[active] && <div className="ai-panel-actions">{hint && <button type="button" className="ai-regenerate" onClick={() => void open(active, true)}>Gợi ý lại</button>}<button type="button" className="ai-speech" onClick={() => void speak()} aria-label={speechState === "idle" ? "Nghe giải thích" : "Dừng đọc"} title={speechState === "idle" ? "Nghe giải thích" : "Dừng đọc"}><span>{speechState === "idle" ? "Nghe giải thích" : "Dừng đọc"}</span>{speechState === "loading" ? <span aria-hidden="true">…</span> : speechState === "playing" ? <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2" /></svg> : <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15 9a5 5 0 0 1 0 6M18 6a9 9 0 0 1 0 12"/></svg>}</button></div>}</div>{speechState === "loading" && <div className="ai-loading" role="status"><span className="ai-loading-spinner" aria-hidden="true" />Cô chú đang chuẩn bị giọng đọc nhé…</div>}<div className="ai-body">{loading ? (partial || <span className="ai-loading" role="status"><span className="ai-loading-spinner" aria-hidden="true" />Cô chú đang đọc đề và chuẩn bị giải thích cho con nhé…</span>) : (contents[active] || error)}</div>{speechError && <div role="status">{speechError}</div>}{error && <div role="status">{contents[active] ? error : null}<button type="button" className="tool-btn" onClick={() => void open(active, !!contents[active])}>Thử lại</button></div>}</div></div>;
+  const panel = active && <div className="ai-panel open"><div className="ai-panel-inner"><div className="ai-panel-heading"><span className="ai-tag">AI cùng con tìm hiểu · Hãy cùng người lớn kiểm tra nhé</span>{!loading && contents[active] && <div className="ai-panel-actions">{hint && <button type="button" className="ai-regenerate" onClick={() => void open(active, true)}>Gợi ý lại</button>}<button type="button" className="ai-speech" onClick={() => void speak()} aria-label={speechState === "idle" ? "Nghe giải thích" : "Dừng đọc"} title={speechState === "idle" ? "Nghe giải thích" : "Dừng đọc"}><span>{speechState === "idle" ? "Nghe giải thích" : "Dừng đọc"}</span>{speechState === "loading" ? <span aria-hidden="true">…</span> : speechState === "playing" ? <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2" /></svg> : <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15 9a5 5 0 0 1 0 6M18 6a9 9 0 0 1 0 12"/></svg>}</button></div>}</div>{speechState === "loading" && <div className="ai-loading" role="status"><span className="ai-loading-spinner" aria-hidden="true" />Cô chú đang chuẩn bị giọng đọc nhé…</div>}<div className="ai-body">{loading ? (partial || <span className="ai-loading" role="status"><span className="ai-loading-spinner" aria-hidden="true" />Cô chú đang đọc đề và chuẩn bị giải thích cho con nhé…</span>) : (contents[active] ? <HighlightedExplanation text={formatted[active] || contents[active]!} phrases={phrases} /> : error)}</div>{speechError && <div role="status">{speechError}</div>}{error && <div role="status">{contents[active] ? error : null}<button type="button" className="tool-btn" onClick={() => void open(active, !!contents[active])}>Thử lại</button></div>}</div></div>;
   return <>
     <div className="ai-tools" role="group" aria-label={`Trợ giúp câu ${number}`}>
       <button type="button" className="tool-btn" aria-expanded={active === "EXPLAIN"} disabled={!!loading} onClick={() => void open("EXPLAIN")}>{hint ? (active === "EXPLAIN" ? "Ẩn gợi ý" : "Gợi ý") : "Giải thích đề"}</button>

@@ -173,6 +173,7 @@ model AiExplanation {
   kind       ExplanationKind
   language   String          @default("vi")
   content    String
+  highlightedContent String? @map("highlighted_content")
   model      String
   createdAt  DateTime        @default(now()) @map("created_at")
   updatedAt  DateTime        @updatedAt @map("updated_at")

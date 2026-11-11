@@ -1763,3 +1763,11 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 
 .q-heading { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .q-heading .ai-panel { flex-basis: 100%; }
+
+.word-highlight { color: #24202d; font-weight: 700; border-radius: 3px; padding: 0 2px; }
+.word-highlight-0 { background: #ffeb99; }
+.word-highlight-1 { background: #bceee0; }
+.word-highlight-2 { background: #f9cde2; }
+.word-highlight-3 { background: #c9dffc; }
+.word-highlight-4 { background: #e1d0fa; }
+.word-highlight-5 { background: #ffddba; }
