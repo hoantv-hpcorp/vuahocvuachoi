@@ -1,13 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const days = [["Monday", "Thứ Hai"], ["Tuesday", "Thứ Ba"], ["Wednesday", "Thứ Tư"], ["Thursday", "Thứ Năm"], ["Friday", "Thứ Sáu"], ["Saturday", "Thứ Bảy"], ["Sunday", "Chủ Nhật"]];
 const months = [["January", "Tháng Một"], ["February", "Tháng Hai"], ["March", "Tháng Ba"], ["April", "Tháng Tư"], ["May", "Tháng Năm"], ["June", "Tháng Sáu"], ["July", "Tháng Bảy"], ["August", "Tháng Tám"], ["September", "Tháng Chín"], ["October", "Tháng Mười"], ["November", "Tháng Mười Một"], ["December", "Tháng Mười Hai"]];
 
 export function WordTables() {
   const [error, setError] = useState("");
-  useEffect(() => () => { window.speechSynthesis?.cancel(); }, []);
+  const current = useRef<SpeechSynthesisUtterance | null>(null);
+  const pending = useRef<string | null>(null);
+  useEffect(() => () => {
+    pending.current = null;
+    if (current.current) {
+      current.current.onend = null;
+      current.current.onerror = null;
+      window.speechSynthesis.cancel();
+      current.current = null;
+    }
+  }, []);
 
   function speak(word: string) {
     if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
@@ -15,11 +25,27 @@ export function WordTables() {
       return;
     }
     setError("");
-    window.speechSynthesis.cancel();
+    if (current.current) {
+      pending.current = word;
+      return;
+    }
     const utterance = new SpeechSynthesisUtterance(word);
     utterance.lang = "en-US";
     utterance.rate = 0.85;
-    utterance.onerror = (event) => { if (event.error !== "canceled" && event.error !== "interrupted") setError("Chưa phát được âm thanh. Hãy thử lại nhé."); };
+    current.current = utterance;
+    const finish = () => {
+      if (current.current !== utterance) return;
+      current.current = null;
+      const next = pending.current;
+      pending.current = null;
+      if (next) speak(next);
+    };
+    utterance.onend = finish;
+    utterance.onerror = (event) => {
+      if (event.error !== "canceled" && event.error !== "interrupted") setError("Chưa phát được âm thanh. Hãy thử lại nhé.");
+      finish();
+    };
+    if (window.speechSynthesis.paused) window.speechSynthesis.resume();
     window.speechSynthesis.speak(utterance);
   }
 
