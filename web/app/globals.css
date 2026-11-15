@@ -18,11 +18,12 @@
 .word-intro { margin-top: 8px; color: var(--ink-soft); line-height: 1.5; }
 .word-section { margin-top: 28px; }
 .word-section h2 { margin-bottom: 12px; font-size: 20px; }
-.word-table-wrap { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.word-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
 .word-table { width: 100%; border-collapse: collapse; text-align: left; }
 .word-table th, .word-table td { padding: 8px 14px; border-bottom: 1px solid var(--line); }
 .word-table thead th { background: var(--primary-tint); color: var(--primary-deep); font-size: 13px; }
 .word-table tbody th { font-weight: 700; }
+.word-ipa { white-space: nowrap; color: var(--ink-soft); }
 .word-table tbody tr:last-child > * { border-bottom: 0; }
 .word-speak { min-height: 44px; display: inline-flex; align-items: center; gap: 6px; color: var(--primary-deep); font-weight: 700; }
 .word-speak:hover { text-decoration: underline; }
