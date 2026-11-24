@@ -14,14 +14,15 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
   if (!profile) redirect("/profiles");
   const attempts = await prisma.attempt.findMany({
     where: { profileId: profile.id, profile: { userId: user.id } },
-    orderBy: { startedAt: "desc" },
     select: { id: true, status: true, startedAt: true, submittedAt: true, exam: { select: { title: true } }, answers: { select: { systemCorrect: true, overrideCorrect: true, pointsPossible: true } } },
   });
+  const history = attempts
+    .map(attempt => ({ attempt, date: attempt.submittedAt ?? attempt.startedAt }))
+    .sort((a, b) => b.date.getTime() - a.date.getTime() || b.attempt.startedAt.getTime() - a.attempt.startedAt.getTime());
   return <Device><AppBar><Link href="/profiles" className="chip on">{profile.nickname} · Lớp {profile.grade}</Link><span className="spacer" /><Link href="/profiles" className="btn btn-ghost">Đổi hồ sơ</Link></AppBar>
     <div className="body"><h1 className="lead">Lịch sử làm bài của {profile.nickname}</h1>
       {params.clear === "1" && attempts.length > 0 ? <><h2>Xóa toàn bộ lịch sử?</h2><p>Thao tác này xóa tất cả bài làm của {profile.nickname}, kể cả bài đang làm dở. Không thể khôi phục.</p><form action={clearHistory} className="profile-form"><input type="hidden" name="profileId" value={profile.id} /><button className="btn btn-primary" type="submit">Xóa toàn bộ lịch sử</button><Link className="btn btn-soft" href="/history">Hủy</Link></form></> : <>
-        {attempts.length === 0 ? <p className="card empty-catalog">Con chưa có bài làm nào. Hãy chọn một đề để bắt đầu nhé.</p> : attempts.map(attempt => {
-          const date = attempt.submittedAt ?? attempt.startedAt;
+        {history.length === 0 ? <p className="card empty-catalog">Con chưa có bài làm nào. Hãy chọn một đề để bắt đầu nhé.</p> : history.map(({ attempt, date }) => {
           const day = new Intl.DateTimeFormat("vi-VN", { day: "2-digit", timeZone: "Asia/Ho_Chi_Minh" }).format(date);
           const month = new Intl.DateTimeFormat("vi-VN", { month: "2-digit", year: "numeric", timeZone: "Asia/Ho_Chi_Minh" }).format(date);
           const open = attempt.status === "IN_PROGRESS";
